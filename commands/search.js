@@ -8,17 +8,15 @@ const randomHexColor = require('random-hex-color')
 
 const i18n = require('i18n')
 
-exports.run = async (seoa, msg, settings) => {
+exports.run = (seoa, msg, settings) => {
   /** Message Filter for .awaitMessages() */
-  let server = await settings.db.select('serverdata', { id: msg.guild.id })
-  server = server[0]
   const filter = (m) => m.author.id === msg.author.id
 
   msg.channel
     .send(
       i18n.__({
         phrase: 'YOUTUBEDEVMSG',
-        locale: server.lang
+        locale: settings.servers[msg.guild.id].lang
       })
     )
     .then((m) => {
@@ -32,7 +30,7 @@ exports.run = async (seoa, msg, settings) => {
             m.edit(
               i18n.__({
                 phrase: 'Corrent',
-                locale: server.lang
+                locale: settings.servers[msg.guild.id].lang
               })
             )
             m.delete(2000)
@@ -47,7 +45,7 @@ exports.run = async (seoa, msg, settings) => {
                   i18n.__(
                     {
                       phrase: 'search',
-                      locale: server.lang
+                      locale: settings.servers[msg.guild.id].lang
                     },
                     collect.first().content.slice(0, 200)
                   ),
@@ -59,7 +57,7 @@ exports.run = async (seoa, msg, settings) => {
                   value: i18n.__(
                     {
                       phrase: 'view',
-                      locale: server.lang
+                      locale: settings.servers[msg.guild.id].lang
                     },
                     video.url,
                     video.duration,
@@ -79,7 +77,7 @@ exports.run = async (seoa, msg, settings) => {
                     m.edit(
                       i18n.__({
                         phrase: 'Corrent',
-                        locale: server.lang
+                        locale: settings.servers[msg.guild.id].lang
                       })
                     )
                     m.delete(2000)

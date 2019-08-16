@@ -6,14 +6,12 @@
 /** Message */
 const i18n = require('i18n')
 
-exports.run = async (seoa, msg, settings) => {
-  let server = await settings.db.select('serverdata', { id: msg.guild.id })
-  server = server[0]
+exports.run = (seoa, msg, settings) => {
   if (msg.guild.voiceConnection) {
     // TODO: LEAVE 에러 고치기
     msg.member.voiceChannel.leave()
     msg.channel.send(
-      i18n.__({ phrase: 'Leave', locale: server.lang })
+      i18n.__({ phrase: 'Leave', locale: settings.servers[msg.guild.id].lang })
     )
   }
 }

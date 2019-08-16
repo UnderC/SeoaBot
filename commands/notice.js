@@ -5,9 +5,7 @@
 
 const i18n = require('i18n')
 
-exports.run = async (seoa, msg, settings, query) => {
-  let server = await settings.db.select('serverdata', { id: msg.guild.id })
-  server = server[0]
+exports.run = (seoa, msg, settings, query) => {
   if (settings.owners.includes(msg.author.id)) {
     seoa.guilds.forEach((guild) => {
       if (settings.servers[guild.id].channelnoticeid === '') {
@@ -25,7 +23,7 @@ exports.run = async (seoa, msg, settings, query) => {
     })
   } else {
     msg.reply(
-      i18n.__({ phrase: '404', locale: server.lang })
+      i18n.__({ phrase: '404', locale: settings.servers[msg.guild.id].lang })
     )
   }
 }

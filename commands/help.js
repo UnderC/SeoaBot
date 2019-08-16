@@ -12,18 +12,15 @@ const locale = {
   pt: require('../locales/pt.json')
 }
 
-exports.run = async (seoa, msg, settings) => {
-  let server = await settings.db.select('serverdata', { id: msg.guild.id })
-  server = server[0]
-  console.log(server)
+exports.run = (seoa, msg, settings) => {
   const help = {
     fields: [
       {
-        name: locale[server.lang].CommandBook,
-        value: locale[server.lang].Prefix + ' >'
+        name: locale[settings.servers[msg.guild.id].lang].CommandBook,
+        value: locale[settings.servers[msg.guild.id].lang].Prefix + ' >'
       }
     ],
-    description: locale[server.lang].BETAMSG
+    description: locale[settings.servers[msg.guild.id].lang].BETAMSG
   }
 
   fileReader.readdir(settings.commands, (err, files) => {
@@ -40,7 +37,7 @@ exports.run = async (seoa, msg, settings) => {
         })
       }
     })
-    msg.channel.send(locale[server.lang].DMSEND)
+    msg.channel.send(locale[settings.servers[msg.guild.id].lang].DMSEND)
     msg.author.send({ embed: help })
   })
 }

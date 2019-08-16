@@ -6,9 +6,7 @@
 /** Message */
 const i18n = require('i18n')
 
-exports.run = async (seoa, msg, settings, query) => {
-  let server = await settings.db.select('serverdata', { id: msg.guild.id })[0]
-  server = server[0]
+exports.run = (seoa, msg, settings, query) => {
   if (settings.owners.includes(msg.author.id)) {
     try {
       // eslint-disable-next-line
@@ -18,7 +16,7 @@ exports.run = async (seoa, msg, settings, query) => {
     }
   } else {
     msg.channel.send(
-      i18n.__({ phrase: '403', locale: server.lang })
+      i18n.__({ phrase: '403', locale: settings.servers[msg.guild.id].lang })
     )
   }
 }

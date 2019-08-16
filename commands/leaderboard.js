@@ -24,30 +24,31 @@ function bubble (arr) {
   return arr
 }
 
-exports.run = async (seoa, msg, settings, query) => {
-  let server = await settings.db.select('serverdata', { id: msg.guild.id })
-  server = server[0]
-  const users = await settings.db.select('userdata')
+exports.run = (seoa, msg, settings, query) => {
+  const scores = require('../UserData/users.json')
   let arr = []
 
-  for (const user in users) arr.push(user)
+  for (const score in scores) {
+    arr[arr.length] = scores[score]
+  }
+
   arr = bubble(arr).slice(0, parseInt(query.args[1]) || 20)
 
   let temp =
     '```fix\n' +
     i18n.__({
       phrase: 'LeaderBoardMsg',
-      locale: server.lang
+      locale: settings.servers[msg.guild.id].lang
     }) +
     '\n'
   arr.forEach((leader, th) => {
     temp += i18n.__(
       {
         phrase: 'LeaderBoardMsg1',
-        locale: server.lang
+        locale: settings.servers[msg.guild.id].lang
       },
       th + 1,
-      seoa.users.find(u => u.id === leader.id).username,
+      leader.name,
       leader.quizPoint
     )
   })

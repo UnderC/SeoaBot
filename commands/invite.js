@@ -6,13 +6,11 @@
 /** Message */
 const i18n = require('i18n')
 
-exports.run = async (seoa, msg, settings) => {
-  let server = await settings.db.select('serverdata', { id: msg.guild.id })
-  server = server[0]
+exports.run = (seoa, msg, settings) => {
   const invite = {
     description: i18n.__({
       phrase: 'Invite',
-      locale: server.lang
+      locale: settings.servers[msg.guild.id].lang
     })
   }
   msg.channel.send({ embed: invite }).then((err) => console.log(err))
