@@ -1,7 +1,7 @@
 const ytdl = require('ytdl-core')
 const fs = require('fs')
 const events = require('events')
-const stableMode = false
+const stableMode = true
 
 let mylist = {}
 module.exports = class MusicServers extends events.EventEmitter {
@@ -47,7 +47,7 @@ class Server extends events.EventEmitter {
     this.playing = false
     this.currentSong = null
     this.songs = []
-    this.stableMode = stableMode // Read-only
+    this.stableMode = stableMode
   }
 
   async _ (channel) {
@@ -74,11 +74,9 @@ class Server extends events.EventEmitter {
     this.playing = true
     this.skipSafe = false
     this.currentSong = song
-    this.dispatcher = stableMode
+    this.dispatcher = this.stableMode
       ? this.conn.playFile(song.path)
-      : this.conn.playStream(
-        ytdl(song.url, { filter: 'audioonly', quality: 'highestaudio' })
-      )
+      : this.conn.playStream(ytdl(song.url, { filter: 'audioonly', quality: 'highest' }))
     this.dispatcher.setVolume(this.volume)
 
     this.dispatcher.on('error', err => {
@@ -88,14 +86,10 @@ class Server extends events.EventEmitter {
 
     this.dispatcher.on('end', () => {
       this.playing = false
-      if (this.skipSafe) {
-        this.skipSafe = false
-        return this.stop()
-      }
-
+      if (this.skipSafe) return this.stop(true)
       if (this.songs.length > 0) this.play(this.songs.shift())
-      else this.stop()
-    })
+      else this.stop(true)
+		})
   }
 
   pause () {
@@ -117,12 +111,14 @@ class Server extends events.EventEmitter {
 
   stop (cb) {
     if (this.dispatcher) {
-      this.skipSafe = true
-      this.dispatcher.end()
+			if ((typeof cb) === 'undefined') {
+				this.skipSafe = true
+      	this.dispatcher.end()
+			}
       delete this.dispatcher
     }
 
-    if (cb) cb()
+    if ((typeof cb) === 'function') cb()
   }
 
   setVolume (vol) {
@@ -134,15 +130,16 @@ class Server extends events.EventEmitter {
   async add (url, isMyList) {
 		let inf = await ytdl.getInfo(url)
     const song = new Song(inf)
-		this.songs.push(song)
-
 		if (!isMyList) this.emit('addSong', song)
-		if (!stableMode) return
-		else if (!fs.existsSync(this.path)) {
-			ytdl(url, { filter: 'audioonly', quality: 'highestaudio' }).pipe(
-				fs.createWriteStream(this.path)
-			)
+		if (stableMode) {
+			if (!fs.existsSync(song.path)) {
+				ytdl(url, { filter: 'audioonly', quality: 'highest' }).pipe(
+					fs.createWriteStream(song.path).on('error', () => { this.add(...args) })
+				)
+			}
 		}
+		
+		this.songs.push(song)
   }
 
   leave () {
@@ -169,13 +166,12 @@ class Server extends events.EventEmitter {
 
 class Song {
   constructor (inf) {
-		console.log(inf)
     this.url = inf.video_url
-    this.title = inf.title
+		this.title = inf.title
+		this.author = inf.author.name
     this.length = inf.length_seconds
     this.vID = inf.video_id
-		this.thumbnail = inf.thumbnail_url
-		if (!stableMode) return
+		this.thumbnail = inf.player_response.videoDetails.thumbnail.thumbnails[3].url
     this.path = `./stream/${this.vID}.mp3`
   }
 }
