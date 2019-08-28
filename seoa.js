@@ -1,7 +1,7 @@
 /**
  * @name Seoa
  * @description Seoa - Music Player
- * @license GPL-3.0-or-later
+ * @license MIT
  * @author Seoa Bot Develoment Team
  * @version 0.1.0
  */
@@ -71,7 +71,7 @@ seoa.on('message', async (msg) => {
       config.owners.includes(msg.author.id) || msg.member.hasPermission(cmd.helps.permission) || 'MISS'
     ) : true
   if ((typeof pass) === 'boolean' && pass) cmd.run(seoa, msg, query)
-  else if ((typeof pass) === 'String') msg.channel.send(i18n.__({ phrase: pass, locale: server.lang }))
+  else if ((typeof pass) === 'string') msg.channel.send(i18n.__({ phrase: pass, locale: server.lang }))
 })
 
 /** @copyright (c) 2019. Seoa Development Team. all rights reserved. */

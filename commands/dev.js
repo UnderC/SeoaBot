@@ -8,7 +8,7 @@ const i18n = require('i18n')
 
 /** 제한 */
 const unObfuscate = require('./stuffs/unObfuscate')
-const risks = ['Infinity', 'delete', 'Obfuscate', 'risks', 'policy', 'setInterval', 'fs', 'require', 'eval', 'token', 'Function', 'exit', 'pid', 'kill', 'Buffer', 'proto', 'debugger' ]
+const risks = ['on(', 'fromCharCode(' ,'[][', '[\'', '\']', '["', '"]', 'constructor', 'Infinity', 'delete', 'Obfuscate', 'risks', 'policy', 'setInterval', 'fs', 'require', 'eval', 'token', 'Function', 'exit', 'pid', 'kill', 'Buffer', 'proto', 'debugger' ]
 const classes = ['Math', 'zlib', 'while', 'with', 'Timeout', 'decoder', 'encoder', 'stream', 'switch', 'root', 'repl', 'readline', 'tty', 'tls', 'finally', 'catch', 'try', 'this', 'querystring', 'Enumerable', 'path', 'Int', 'Float', 'os', 'net', 'new', 'module', 'Of', 'spector', 'of', 'in', 'import', 'if', 'https', 'http2', 'http', 'Property', 'function', 'for', 'true', 'false', 'events', 'eval', 'escape', 'export', 'exports', 'dgram', 'domain', 'dns', 'component', 'do', 'delete', 'default', 'constructor', 'Immediate', 'Interval', 'console', 'buffer', 'process', 'assert', 'Array', 'Buffer', 'Atomics', 'BigInt', 'Boolean', 'REQUEST', 'RESPONSE', 'END', 'CONNECTION', 'View', 'Date', 'Error', 'Function', 'GLOBAL', 'Intl', 'JSON', 'Map', 'NaN', 'Number', 'Object', 'Promise', 'Proxy', 'Reflect', 'RegExp', 'Set', 'String', 'Symbol', 'URL', 'Params', 'Assembly']
 classes.forEach(c => {
   risks.push(`${c}=`)
@@ -18,6 +18,8 @@ exports.run = async (seoa, msg, query) => {
   let policy = seoa.settings.localPolicy.eval
   let server = await seoa.db.select('serverdata', { id: msg.guild.id })
   server = server[0]
+
+  if (!policy.enable) return msg.channel.send('보안 정책상 eval이 비활성화 되었습니다.')
   try {
     let q = query.args.join(' ')
     if (unObfuscate.detect(q)) {

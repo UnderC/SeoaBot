@@ -1,9 +1,9 @@
 const ytdl = require('ytdl-core')
 const fs = require('fs')
 const events = require('events')
+const path = require('path')
 const stableMode = true
 
-let mylist = {}
 module.exports = class MusicServers extends events.EventEmitter {
   constructor () {
     super()
@@ -133,13 +133,12 @@ class Server extends events.EventEmitter {
 		if (!isMyList) this.emit('addSong', song)
 		if (stableMode) {
 			if (!fs.existsSync(song.path)) {
-				ytdl(url, { filter: 'audioonly', quality: 'highest' }).pipe(
-					fs.createWriteStream(song.path).on('error', () => { this.add(...args) })
-				)
-			}
-		}
-		
-		this.songs.push(song)
+        let stream = ytdl(url, { filter: 'audioonly', quality: 'highest' })
+        stream.pipe(fs.createWriteStream(song.path))
+        stream.on('error', () => { return this.add(url, isMyList) })
+      }
+    }
+    return this.songs.push(song)
   }
 
   leave () {
@@ -153,14 +152,13 @@ class Server extends events.EventEmitter {
     delete this.conn
   }
 
-  mylist (lID) {
-    let myList = mylist[lID]
-    this.emit('myList', myList)
-    if (myList) {
-      myList.forEach(v => {
-        this.add(v, true)
-      })
-    }
+  mylist (m) {
+    if (!m) return
+    m.list = JSON.parse(m.list)
+    this.emit('myList', m)
+    m.list.forEach(v => {
+      this.add(v, true)
+    })
   }
 }
 
@@ -172,6 +170,6 @@ class Song {
     this.length = inf.length_seconds
     this.vID = inf.video_id
 		this.thumbnail = inf.player_response.videoDetails.thumbnail.thumbnails[3].url
-    this.path = `./stream/${this.vID}.mp3`
+    this.path = path.join(__dirname, `./stream/${this.vID}.mp3`)
   }
 }
