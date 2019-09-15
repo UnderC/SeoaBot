@@ -20,7 +20,6 @@ exports.run = async (seoa, msg) => {
     '\n'
   arr.forEach((leader, th) => {
     const user = seoa.users.find(u => u.id === leader.id)
-    console.log(user)
     temp += i18n.__(
       {
         phrase: 'LeaderBoardMsg1',
