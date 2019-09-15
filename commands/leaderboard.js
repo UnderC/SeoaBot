@@ -9,7 +9,7 @@ const i18n = require('i18n')
 exports.run = async (seoa, msg) => {
   let server = await seoa.db.select('serverdata', { id: msg.guild.id })
   server = server[0]
-  let arr = await seoa.db.select('userdata', null, 'order by quizPoint desc')
+  let arr = await seoa.db.select('userdata', null, 'order by quizPoint desc limit 10')
 
   let temp =
     '```fix\n' +
@@ -19,13 +19,15 @@ exports.run = async (seoa, msg) => {
     }) +
     '\n'
   arr.forEach((leader, th) => {
+    const user = seoa.users.find(u => u.id === leader.id)
+    console.log(user)
     temp += i18n.__(
       {
         phrase: 'LeaderBoardMsg1',
         locale: server.lang
       },
       th + 1,
-      seoa.users.find(u => u.id === leader.id).username,
+      user ? user.username : 'UNKNOWN',
       leader.quizPoint
     )
   })

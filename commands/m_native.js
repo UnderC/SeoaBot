@@ -68,6 +68,7 @@ exports.run = async (seoa, msg, query) => {
   else if (query.args[0] === 'repeat') here.repeat ? here.repeat = false : here.repeat = true
   else if (query.args[0] === 'random') here.random ? here.random = false : here.random = true
   else if (query.args[0] === 'now') {
+    if (!here.currentSong) return
     let u = conv(here.currentSong.length - Math.floor(here.dispatcher.time / 1000))
     embed.addField(`:musical_note: **지금 재생중**`, `**제목** | ${here.currentSong.title}\n**길이** | ${u[1]}시간 ${u[2]}분 ${u[3]}초 남음`)
       .setThumbnail(here.currentSong.thumbnail)
